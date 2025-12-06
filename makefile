@@ -1,10 +1,11 @@
-all: EP
+EP : arvore.o 17076671.o
+	cc arvore.o 17076671.o -o EP 
 
-EP: arvore.o
-	cc arvore.o 17076671.c -o EP 
+17076671.o : 17076671.c
+	cc -c 17076671.c
 
-arvore.o: arvore.c
-	cc -c arvore.c -o arvore.o -W -Wall
+arvore.o : arvore.c
+	cc -c arvore.c -o arvore.o
 
-clean:
+clean :
 	rm -rf *.o EP

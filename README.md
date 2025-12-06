@@ -7,7 +7,10 @@ O programa é bem simples. O 17076671.c é praticamente o main.c, separei em alg
 ## Compilar
 ```bash
 # isso é necessário?
-make all
+make
+
+# pode ser útil
+make clean
 ```
 
 ## Uso
