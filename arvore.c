@@ -19,6 +19,7 @@ No *insere_ord_rec(No *raiz, No *novo){
     }
     return novo;
 }
+
 No *busca_rec(No * no, char *e){
     if (no) {
         if (strcasecmp(no->palavra, e) > 0) return busca_rec(no->esq, e);
@@ -32,14 +33,45 @@ No *busca(Arvore * arvore, char *e){
     return busca_rec(arvore->raiz, e);	
 }
 
+void adiciona_linha(No *no, int linha) {
+    Ocorrencia *novo = malloc(sizeof(Ocorrencia));
+    if (!novo) return;
+    novo->linha = linha;
+    novo->prox = NULL;
+
+    if (!no->ocorrencias)
+        no->ocorrencias = novo;
+    else {
+        Ocorrencia *p = no->ocorrencias;
+        Ocorrencia *tmp;
+        while (p) {
+            if (p->linha == linha) {
+                no->n++;
+                free(novo);
+                return;
+            }
+            tmp = p;
+            p = p->prox;
+        }
+        tmp->prox = novo;
+        no->n++;
+    }
+}
+
 bool insere_ord(Arvore *arvore, char *e, int l) {
-    if (busca(arvore, e)) return false;
+    No *p = busca(arvore, e);
+    if (p) {
+        adiciona_linha(p, l);
+        return false;
+    }
     No * novo = malloc(sizeof(No));
     if (!novo) return false;
 
     strcpy(novo->palavra, e);
     novo->esq = novo->dir = NULL;
-    novo->linha = l;
+    novo->ocorrencias = NULL;
+    novo->n = 1;
+    adiciona_linha(novo, l);
 
     arvore->raiz = insere_ord_rec(arvore->raiz, novo);
     return true;
@@ -65,11 +97,19 @@ int altura(No * no) {
     return -1;
 }
 
+void destroi_ocorrencias(Ocorrencia *ocorrencia) {
+    if (!ocorrencia) return;
+
+    destroi_ocorrencias(ocorrencia->prox);
+    free(ocorrencia);
+}
+
 void destroi_arvore_rec(No *no) {
     if (!no) return;
 
     destroi_arvore_rec(no->esq);
     destroi_arvore_rec(no->dir);
+    destroi_ocorrencias(no->ocorrencias);
     free(no);
 
 }

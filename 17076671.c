@@ -5,66 +5,86 @@
 #include <strings.h>
 #include "arvore.h"
 
-#define TAMANHO 10000
-
 enum { _Lista, _Arvore };
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
         printf("Uso: %s <nome_do_arquivo>.txt <tipo_de_índice>\n", argv[0]);
-        exit(1);
+        return 1;
     } 
 
-    FILE *ENTRADA;
     printf("Arquivo: \'%s\'\n", argv[1]);
     printf("Tipo de indice: \'%s\'\n", argv[2]);
-    ENTRADA = fopen(argv[1], "r");
-    if (ENTRADA == NULL) {
+    FILE *ENTRADA = fopen(argv[1], "r");
+    if (!ENTRADA) {
         printf("Erro! Impossível abrir o arquivo de entrada!\n");
-        exit(2);
+        return 2;
+    }
+    int indice;
+    if (strcmp(argv[2], "arvore") == 0) indice = _Arvore;
+    else if (strcmp(argv[2], "lista") == 0) indice = _Lista;
+    else {
+        printf("Erro! Tipo de índice inválido!\n");
+        fclose(ENTRADA);
+        return 3;
     }
 
+    char *linha = NULL;
+    size_t tamanho = 0;
+    int lidos;
+
+    char **linhas = NULL;
     int n_linhas = 0;
-    int n_palavras = 0;
-    int indice = strcasecmp(argv[2], "arvore") == 0 ? _Arvore : _Lista;
-    Arvore *arvore = cria_arvore();
-    char buffer[TAMANHO + 1];
-    while (ENTRADA && fgets(buffer, TAMANHO, ENTRADA)) {
+    while ((lidos = getline(&linha, &tamanho, ENTRADA)) != -1) {
+        linhas = realloc(linhas, (n_linhas + 1) * sizeof(char *));
+        linhas[n_linhas] = strdup(linha);
         n_linhas++;
-
-        char *token = strtok(buffer, " -,./\n");
-        while (token) {
-            if (indice == _Arvore)
-                insere_ord(arvore, token, n_linhas);
-            token = strtok(NULL, " -,./\n");
-        }
     }
-    if (indice == _Arvore) {
-        int n = contar(arvore);
-        printf("Numero de linhas no arquivo: %d\n", n_linhas);
-        printf("Total de palavras unicas indexadas: %05d\n", n);
-        printf("Altura da arvore: %05d\n", altura(arvore->raiz));
-    }
-
-    char comando[100];
-    bool fim = false;
-    while (!fim) {
-        printf("> ");
-        scanf("%s", comando);
-        if (strcmp(comando, "fim") == 0) fim = true;
-        else if (strcmp(comando, "busca") == 0) {
-            scanf("%s", comando);
-            No *p = busca(arvore, comando);
-            if (p) {
-                rewind(ENTRADA);
-                for (int i = 0; i < p->linha; i++)
-                    fgets(buffer, sizeof(buffer), ENTRADA);
-                printf("%04d: %s", p->linha, buffer);
-            } else printf("Palavra \'%s\' nao encontrada.\n", comando);
-        }
-        else printf("Opcao invalida!\n");
-    }
+    free(linha);
     fclose(ENTRADA);
-    destroi_arvore(arvore);
-    free(arvore);
+
+    if (indice == _Arvore) {
+        Arvore *arvore = cria_arvore();
+        for (int i = 0; i < n_linhas; i++) {
+            char *tmp = strdup(linhas[i]);
+            char *token = strtok(tmp, " -,./\n");
+            while (token) {
+                insere_ord(arvore, token, i);
+                token = strtok(NULL, " -,./\n");
+            }
+            free(tmp);
+        }
+
+        int n = contar(arvore);
+        printf("Total de palavras unicas indexadas: %05d\n", n);
+        printf("Numero de linhas no arquivo: %d\n", n_linhas);
+        printf("Altura da arvore: %05d\n", altura(arvore->raiz));
+
+        char comando[100];
+        bool fim = false;
+        while (!fim) {
+            printf("> ");
+            scanf("%s", comando);
+            if (strcmp(comando, "fim") == 0) fim = true;
+            else if (strcmp(comando, "busca") == 0) {
+                scanf("%s", comando);
+                No *p = busca(arvore, comando);
+                if (p) {
+                    printf("Existem %d ocorrências da palavra \'%s\' na(s) seguinte(s) linha(s):\n", p->n, comando);
+                    Ocorrencia *o = p->ocorrencias;
+                    while (o) {
+                        printf("%04d: %s", o->linha + 1, linhas[o->linha]);
+                        o = o->prox;
+                    }
+                } else printf("Palavra \'%s\' nao encontrada.\n", comando);
+            } else printf("Opcao invalida!\n");
+        }
+        destroi_arvore(arvore);
+        free(arvore);
+    } else {
+
+    }
+    for (int i = 0; i < n_linhas; i++) free(linhas[i]);
+    free(linhas);
+    return 0;
 }
