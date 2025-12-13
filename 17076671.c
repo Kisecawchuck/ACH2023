@@ -4,6 +4,7 @@
 #include <string.h>
 #include <strings.h>
 #include "arvore.h"
+#include "lista.h"
 
 enum { _Lista, _Arvore };
 
@@ -30,12 +31,12 @@ int main(int argc, char *argv[]) {
     }
 
     char *linha = NULL;
-    size_t tamanho = 0;
+    size_t len = 0;
     int lidos;
 
     char **linhas = NULL;
     int n_linhas = 0;
-    while ((lidos = getline(&linha, &tamanho, ENTRADA)) != -1) {
+    while ((lidos = getline(&linha, &len, ENTRADA)) != -1) {
         linhas = realloc(linhas, (n_linhas + 1) * sizeof(char *));
         linhas[n_linhas] = strdup(linha);
         n_linhas++;
@@ -56,9 +57,10 @@ int main(int argc, char *argv[]) {
         }
 
         int n = contar(arvore);
+        int h = altura(arvore->raiz);
         printf("Total de palavras unicas indexadas: %05d\n", n);
         printf("Numero de linhas no arquivo: %d\n", n_linhas);
-        printf("Altura da arvore: %05d\n", altura(arvore->raiz));
+        printf("Altura da arvore: %05d\n", h);
 
         char comando[100];
         bool fim = false;
@@ -68,21 +70,69 @@ int main(int argc, char *argv[]) {
             if (strcmp(comando, "fim") == 0) fim = true;
             else if (strcmp(comando, "busca") == 0) {
                 scanf("%s", comando);
-                No *p = busca(arvore, comando);
+                No *p = busca_arvore(arvore, comando);
                 if (p) {
                     printf("Existem %d ocorrências da palavra \'%s\' na(s) seguinte(s) linha(s):\n", p->n, comando);
                     Ocorrencia *o = p->ocorrencias;
                     while (o) {
-                        printf("%04d: %s", o->linha + 1, linhas[o->linha]);
+                        printf("%05d: %s", o->linha + 1, linhas[o->linha]);
                         o = o->prox;
                     }
-                } else printf("Palavra \'%s\' nao encontrada.\n", comando);
+                    printf("Numero de comparacoes: %05d\n", h - altura(p) + 1);
+                } else {
+                    printf("Palavra \'%s\' nao encontrada.\n", comando);
+                    printf("Numero de comparacoes: %05d\n", h + 1);
+                }
             } else printf("Opcao invalida!\n");
         }
         destroi_arvore(arvore);
         free(arvore);
     } else {
+        Lista *lista = cria_lista();
+        for (int i = 0; i < n_linhas; i++) {
+            char *tmp = strdup(linhas[i]);
+            char *token = strtok(tmp, " -,./\n");
+            while (token) {
+                insere_lista(lista, token, i);
+                token = strtok(NULL, " -,./\n");
+            }
 
+            free(tmp);
+        }
+
+        int n = tamanho(lista);
+
+        printf("Total de palavras unicas indexadas: %05d\n", n);
+        printf("Numero de linhas no arquivo: %d\n", n_linhas);
+
+        char comando[100];
+        bool fim = false;
+        while (!fim) {
+            printf("> ");
+            scanf("%s", comando);
+            if (strcmp(comando, "fim") == 0) fim = true;
+            else if (strcmp(comando, "busca") == 0) {
+                scanf("%s", comando);
+                Nodo *p = busca_lista(lista, comando);
+                Nodo *q = lista->primeiro;
+                int idx;
+                if (p) {
+                    for (idx = 1; strcasecmp(p->palavra, q->palavra) != 0; idx++) q = q->proximo;
+                    printf("Existem %d ocorrências da palavra \'%s\' na(s) seguinte(s) linha(s):\n", p->n, comando);
+                    Ocorrencia *o = p->ocorrencias;
+                    while (o) {
+                        printf("%05d: %s", o->linha + 1, linhas[o->linha]);
+                        o = o->prox;
+                    }
+                    printf("Numero de comparacoes: %05d\n", idx);
+                } else {
+                    printf("Palavra \'%s\' nao encontrada.\n", comando);
+                    printf("Numero de comparacoes: %05d\n", n);
+                }
+            } else printf("Opcao invalida!\n");
+        }
+        destroi_lista(lista);
+        free(lista);
     }
     for (int i = 0; i < n_linhas; i++) free(linhas[i]);
     free(linhas);

@@ -6,7 +6,7 @@ O programa é bem simples. O 17076671.c é praticamente o main.c, separei em alg
 
 ## Compilar
 ```bash
-# isso é necessário?
+# CUIDADO!
 make
 
 # pode ser útil
@@ -15,5 +15,5 @@ make clean
 
 ## Uso
 ```bash
-./EP textos/texto.txt arvore
+./EP <nome_do_arquivo>.txt <tipo_do_índice>
 ```

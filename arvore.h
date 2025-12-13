@@ -22,13 +22,14 @@ Arvore *cria_arvore();
 No *insere_ord_rec(No *raiz, No *novo);
 bool insere_ord(Arvore *arvore, char *e, int l);
 No *busca_rec(No *no, char *e);
-No *busca(Arvore *arvore, char *e);
+No *busca_arvore(Arvore *arvore, char *e);
 int contar_rec(No *no);
 int contar(Arvore *arvore);
 int max(int a, int b);
 int altura(No *no);
 void destroi_arvore_rec(No *no);
 void destroi_arvore(Arvore *arvore);
+void destroi_ocorrencias(Ocorrencia *o);
 void adiciona_linha( No *no, int linha);
 
 #endif

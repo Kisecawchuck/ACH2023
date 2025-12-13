@@ -29,7 +29,7 @@ No *busca_rec(No * no, char *e){
     return NULL;
 }
 
-No *busca(Arvore * arvore, char *e){
+No *busca_arvore(Arvore * arvore, char *e){
     return busca_rec(arvore->raiz, e);	
 }
 
@@ -59,7 +59,7 @@ void adiciona_linha(No *no, int linha) {
 }
 
 bool insere_ord(Arvore *arvore, char *e, int l) {
-    No *p = busca(arvore, e);
+    No *p = busca_arvore(arvore, e);
     if (p) {
         adiciona_linha(p, l);
         return false;
