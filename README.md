@@ -2,7 +2,7 @@
 
 > Uma tentativa de fazer o EP de AED I
 
-O programa é bem simples. O 17076671.c é praticamente o main.c, separei em alguns arquivos para facilitar a leitura dele. Tecnicamente, um compilador C qualquer é a única dependência (mas isso é óbvio).
+O programa é bem simples. O main.c foi separado em dois arquivos com seus respectivos índices. Tecnicamente, um compilador C qualquer é a única dependência (mas isso é óbvio).
 
 ## Compilar
 ```bash
