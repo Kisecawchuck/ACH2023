@@ -1,7 +1,7 @@
 EP : arvore.o lista.o main.o
 	cc arvore.o lista.o main.o -o EP -Wall
 
-main.o : 17076671.c
+main.o : main.c
 	cc -c main.c
 
 arvore.o : arvore.c
