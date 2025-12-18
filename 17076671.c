@@ -8,6 +8,8 @@
 
 enum { _Lista, _Arvore };
 
+#define MAX_INPUT 100
+
 int main(int argc, char *argv[]) {
     if (argc < 3) {
         printf("Uso: %s <nome_do_arquivo>.txt <tipo_de_índice>\n", argv[0]);
@@ -62,28 +64,31 @@ int main(int argc, char *argv[]) {
         printf("Numero de linhas no arquivo: %d\n", n_linhas);
         printf("Altura da arvore: %05d\n", h);
 
-        char comando[100];
+        char opt[MAX_INPUT];
         bool fim = false;
         while (!fim) {
             printf("> ");
-            scanf("%s", comando);
-            if (strcmp(comando, "fim") == 0) fim = true;
-            else if (strcmp(comando, "busca") == 0) {
-                scanf("%s", comando);
-                No *p = busca_arvore(arvore, comando);
-                if (p) {
-                    printf("Existem %d ocorrências da palavra \'%s\' na(s) seguinte(s) linha(s):\n", p->n, comando);
-                    Ocorrencia *o = p->ocorrencias;
-                    while (o) {
-                        printf("%05d: %s", o->linha + 1, linhas[o->linha]);
-                        o = o->prox;
+            fgets(opt, MAX_INPUT, stdin);
+            char *cmd = strtok(opt, " \n");
+            if (cmd) {
+                if (strcmp(cmd, "fim") == 0) fim = true;
+                else if (strcmp(cmd, "busca") == 0) {
+                    cmd = strtok(NULL, " \n");
+                    No *p = busca_arvore(arvore, cmd);
+                    if (p) {
+                        printf("Existem %d ocorrências da palavra \'%s\' na(s) seguinte(s) linha(s):\n", p->n, cmd);
+                        Ocorrencia *o = p->ocorrencias;
+                        while (o) {
+                            printf("%05d: %s", o->linha + 1, linhas[o->linha]);
+                            o = o->prox;
+                        }
+                        printf("Numero de comparacoes: %05d\n", h - altura(p) + 1);
+                    } else {
+                        printf("Palavra \'%s\' nao encontrada.\n", cmd);
+                        printf("Numero de comparacoes: %05d\n", h + 1);
                     }
-                    printf("Numero de comparacoes: %05d\n", h - altura(p) + 1);
-                } else {
-                    printf("Palavra \'%s\' nao encontrada.\n", comando);
-                    printf("Numero de comparacoes: %05d\n", h + 1);
-                }
-            } else printf("Opcao invalida!\n");
+                } else printf("Opcao invalida!\n");
+            }
         }
         destroi_arvore(arvore);
         free(arvore);
@@ -105,31 +110,34 @@ int main(int argc, char *argv[]) {
         printf("Total de palavras unicas indexadas: %05d\n", n);
         printf("Numero de linhas no arquivo: %d\n", n_linhas);
 
-        char comando[100];
+        char opt[MAX_INPUT];
         bool fim = false;
         while (!fim) {
             printf("> ");
-            scanf("%s", comando);
-            if (strcmp(comando, "fim") == 0) fim = true;
-            else if (strcmp(comando, "busca") == 0) {
-                scanf("%s", comando);
-                Nodo *p = busca_lista(lista, comando);
-                Nodo *q = lista->primeiro;
-                int idx;
-                if (p) {
-                    for (idx = 1; strcasecmp(p->palavra, q->palavra) != 0; idx++) q = q->proximo;
-                    printf("Existem %d ocorrências da palavra \'%s\' na(s) seguinte(s) linha(s):\n", p->n, comando);
-                    Ocorrencia *o = p->ocorrencias;
-                    while (o) {
-                        printf("%05d: %s", o->linha + 1, linhas[o->linha]);
-                        o = o->prox;
+            fgets(opt, MAX_INPUT, stdin);
+            char *cmd = strtok(opt, " \n");
+            if (cmd) {
+                if (strcmp(cmd, "fim") == 0) fim = true;
+                else if (strcmp(cmd, "busca") == 0) {
+                    cmd = strtok(NULL, " \n");
+                    Nodo *p = busca_lista(lista, cmd);
+                    Nodo *q = lista->primeiro;
+                    int idx;
+                    if (p) {
+                        for (idx = 1; strcasecmp(p->palavra, q->palavra) != 0; idx++) q = q->proximo;
+                        printf("Existem %d ocorrências da palavra \'%s\' na(s) seguinte(s) linha(s):\n", p->n, cmd);
+                        Ocorrencia *o = p->ocorrencias;
+                        while (o) {
+                            printf("%05d: %s", o->linha + 1, linhas[o->linha]);
+                            o = o->prox;
+                        }
+                        printf("Numero de comparacoes: %05d\n", idx);
+                    } else {
+                        printf("Palavra \'%s\' nao encontrada.\n", cmd);
+                        printf("Numero de comparacoes: %05d\n", n);
                     }
-                    printf("Numero de comparacoes: %05d\n", idx);
-                } else {
-                    printf("Palavra \'%s\' nao encontrada.\n", comando);
-                    printf("Numero de comparacoes: %05d\n", n);
-                }
-            } else printf("Opcao invalida!\n");
+                } else printf("Opcao invalida!\n");
+            }
         }
         destroi_lista(lista);
         free(lista);

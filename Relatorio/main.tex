@@ -1,6 +1,8 @@
 \documentclass{report}
 
 \usepackage[portuguese]{babel}
+\usepackage{graphicx}
+\usepackage{listings, xcolor}
 \usepackage[useregional]{datetime2}
 
 \title{ACH2023 --- Algoritmos e Estruturas de Dados \\[1ex] \large Exercício Programa I}
@@ -12,11 +14,117 @@
 \maketitle
 
 \chapter{Estrutura}
-\section{Teste}
-Waves
-\chapter{Resultados}
+O programa se divide em três arquivos principais: arvore.c, lista.c, 17076671.c.
+Os arquivos \textbf{arvore.c} e \textbf{lista.c} contêm as funções padrão de suas
+respectivas estruturas. A diferença mais notória nessas estruturas é a existência da variável
+\textbf{ocorrencias} do tipo \textbf{Ocorrencia}, uma espécie de lista ligada
+para cuidar de palavras duplicadas na leitura do arquivo.
+Já o arquivo \textbf{17076671.c} é onde ``a mágica acontece'', é nele que ocorre a
+leitura do arquivo, criação do índice e o loop principal do programa e, mesmo
+que com alguma repetição, a criação de cada índice foi totalmente separada
+para facilitar a leitura.
 
-\appendix
-\chapter{Árvore VHL}
+Em uma análise simples, o programa \textbf{valgrind} aponta não ter vazamentos
+de memória possíveis nos três cenários que consegui pensar:
+\begin{enumerate}
+    \item Arquivo inválido
+    \item Índice inválido
+    \item Execução normal
+\end{enumerate}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth, height=0.12\textheight]{./img/arquivo}
+    \includegraphics[width=0.4\textwidth, height=0.12\textheight]{./img/indice}
+    \includegraphics[width=0.4\textwidth, height=0.12\textheight]{./img/normal}
+    \caption{Saída nos três casos.}
+\end{figure}
+
+\chapter{Resultados}
+\section{Texto exemplo}
+O texto exemplo é o trecho apresentado no enunciado do EP. Ele serve
+como um texto pequeno, mas mostra exemplos esclarecedores. Aqui o uso
+como indicado no enunciado usando os índices árvore e lista:
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.48\textwidth, height=0.2\textheight]{./img/arvore1}
+    \hspace{0.5cm}
+    \includegraphics[width=0.48\textwidth, height=0.2\textheight]{./img/lista1}
+    \caption{Exemplo mencionado.}
+\end{figure}
+Em média, as árvores fazem menos comparações, mas o arquivo é muito pequeno
+notar alguma diferença considerável de tempo. A criação do índice é rápida
+e a busca é mais rápida ainda.
+
+\section{Crepúsculo dos ídolos: ou A filosofia a golpes de martelo}
+Um texto que serve como uma entrada de tamanho médio. Agora é possível notar
+uma pequena diferença de tempo na criação do índice, com a lista demorando um pouco
+mais, mas a busca ainda é muito rápida. O número de comparações na lista já
+se tornou por volta de 100x o número de comparações na árvores.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.40\textwidth, height=0.2\textheight]{./img/tempo2_arvore}
+    \includegraphics[width=0.40\textwidth, height=0.2\textheight]{./img/tempo2_lista}
+    \caption{Tempo de criação de índice e busca em cada índice.}
+\end{figure}
+\section{Memórias póstumas de Brás Cubas}
+Outro texto que serve como uma entrada de tamanho médio, porém está aqui
+para testar palavras com acentuação.\footnote{A ideia original era usar um
+texto em japonês, mas o tratamento de caracteres Unicode e separação de
+palavras se mostrou muito difícil.} Palavras acentuadas são diferentes
+de palavras não acentuadas (e.g. ``está'' $\neq$ ``esta''), e tudo funciona normalmente.
+O número de comparações na lista também é cerca de 100x o número de comparações na
+árvore.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.40\textwidth, height=0.2\textheight]{./img/tempo3_arvore}
+    \includegraphics[width=0.40\textwidth, height=0.2\textheight]{./img/tempo3_lista}
+    \caption{Acentos funcionam como você esperaria.}
+\end{figure}
+\section{Anna Karenina}
+Um texto que serve como uma entrada de tamanho grande. A criação de cada
+indíce agora toma tempo considerável e a diferença entre a criação da
+árvore e a da lista já não é mais marginal. A busca ainda é surpreendentemente
+rápida para os dois índices. O número de comparações na lista é cerca de 1000x
+o número de comparações na árvore.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.40\textwidth, height=0.2\textheight]{./img/tempo4_arvore}
+    \includegraphics[width=0.40\textwidth, height=0.2\textheight]{./img/tempo4_lista}
+    \caption{Diferença entre os índices se torna mais notória.}
+\end{figure}
+\section{Dicionário}
+Um exemplo de entrada muito grande. O desempenho da lista é desproporcionalmente
+pior do que o da árvore a ponto de, no primeiro momento, me questionar se
+a demora se tratava de um \textit{bug}. Acredito que a explicação se encontra no fato
+da lista ter de fazer muitas buscas na construção do índice e (quase) todas palavras
+serem inseridas ao final dela, a árvore lidou muito melhor com o texto em ordem
+alfabética. O tempo unitário da busca em cada índice continua magnificentemente rápido.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.40\textwidth, height=0.2\textheight]{./img/tempo5_arvore}
+    \includegraphics[width=0.40\textwidth, height=0.2\textheight]{./img/tempo5_lista}
+    \caption{Diferença desproporcional entre os índices.}
+\end{figure}
+
+\chapter{Conclusão}
+O desempenho de cada índice depende mais do formato do arquivo de
+entrada do que o tamanho dele. O maior gargalo do programa se encontra na
+criação do índice, algo que só se torna útil caso o usuário queira fazer
+sucessivas buscas no arquivo de entrada e faz o programa ficar extremamente
+mais lento caso contrário.
+
+Usei o dicionário como exemplo de resultado porque acreditva se tratar
+do pior caso para os dois índices, mas essa ideia intuitiva se mostrou
+falsa. Uma lista sequencial ao invés de uma lista ligada poderia se
+beneficiar da busca no caso de uma entrada em ordem alfabética, porém é
+um caso muito específico e a inserção ainda seria lenta.
+
+\textbf{Fato curioso}: O programa usou, no máximo, $75.9$MB em ambos os índices (A árvore
+usa um pouco mais de memória). Achei curioso porque, dado o tamanho da
+entrada, pensava que seria muito mais. A título de comparação, o leitor de pdf
+em que estou editando o relatório, que é conhecido por ser ``leve'' e ``minimalista''
+(\textbf{Zathura}), usa cerca de $172.5$MB e o editor de texto (\textbf{Neovim})
+usa $30.3$MB.
 
 \end{document}
